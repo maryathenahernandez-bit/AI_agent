@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3: Intelligent Agents — Last Minute Reviewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E63946;
+    --dark: #0a0a0f;
+    --mid: #12121a;
+    --card: #1a1a26;
+    --card2: #20202e;
+    --accent: #F4C842;
+    --blue: #4CC9F0;
+    --green: #57CC99;
+    --purple: #9B5DE5;
+    --text: #E8E8F0;
+    --muted: #8888AA;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(230,57,70,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(230,57,70,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 60px 40px 50px;
+    text-align: center;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(ellipse, rgba(230,57,70,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 5px 16px;
+    border-radius: 2px;
+    margin-bottom: 18px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    letter-spacing: 4px;
+    line-height: 0.95;
+    animation: fadeDown 0.7s ease 0.1s both;
+  }
+
+  .hero h1 span { color: var(--red); }
+
+  .hero-sub {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'Space Mono', monospace;
+    animation: fadeDown 0.7s ease 0.2s both;
+  }
+
+  /* Quick Stats Bar */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 30px auto;
+    max-width: 700px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    animation: fadeUp 0.8s ease 0.3s both;
+    position: relative;
+    z-index: 1;
+  }
+  .stat {
+    flex: 1;
+    text-align: center;
+    padding: 14px 10px;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    font-family: 'Space Mono', monospace;
+    margin-top: 3px;
+  }
+
+  /* Main layout */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Section headers */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 48px 0 20px;
+  }
+  .section-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--red);
+    background: rgba(230,57,70,0.12);
+    border: 1px solid rgba(230,57,70,0.3);
+    padding: 3px 10px;
+    border-radius: 3px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover {
+    border-color: rgba(230,57,70,0.3);
+    transform: translateY(-1px);
+  }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  @media (max-width: 700px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* Definition highlight */
+  .def-box {
+    background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(230,57,70,0.03));
+    border-left: 3px solid var(--red);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    font-size: 14.5px;
+  }
+  .def-box strong { color: var(--red); }
+
+  /* Formula box */
+  .formula {
+    background: var(--card2);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px 28px;
+    text-align: center;
+    margin: 16px 0;
+  }
+  .formula-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+  .formula-sub {
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    margin-top: 4px;
+  }
+
+  /* Cycle / process steps */
+  .steps {
+    display: flex;
+    gap: 0;
+    margin: 16px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .step {
+    flex: 1;
+    text-align: center;
+    padding: 16px 10px;
+    position: relative;
+  }
+  .step:nth-child(1) { background: rgba(230,57,70,0.12); }
+  .step:nth-child(2) { background: rgba(244,200,66,0.09); }
+  .step:nth-child(3) { background: rgba(76,201,240,0.09); }
+  .step:nth-child(4) { background: rgba(87,204,153,0.09); }
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+  }
+  .step:nth-child(1) .step-num { color: var(--red); }
+  .step:nth-child(2) .step-num { color: var(--accent); }
+  .step:nth-child(3) .step-num { color: var(--blue); }
+  .step:nth-child(4) .step-num { color: var(--green); }
+  .step-text { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
+  .step-title { font-size: 13px; font-weight: 700; margin: 4px 0 2px; }
+  .step-arrow {
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    z-index: 2;
+    color: var(--muted);
+  }
+
+  /* Agent type cards */
+  .agent-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .agent-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+  .agent-header {
+    padding: 14px 18px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .agent-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .agent-body {
+    padding: 0 18px 16px;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .agent-body ul { padding-left: 16px; }
+  .agent-body li { margin-bottom: 3px; }
+  .agent-body li span { color: var(--text); }
+  .agent-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+
+  /* PEAS table */
+  .peas-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  .peas-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    background: var(--card2);
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .peas-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .peas-table tr:last-child td { border-bottom: none; }
+  .peas-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .peas-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    display: block;
+  }
+
+  /* Rules list */
+  .rule-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .rule-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    line-height: 1;
+    color: var(--red);
+    min-width: 32px;
+  }
+  .rule-text { font-size: 14.5px; padding-top: 4px; }
+  .rule-text strong { color: var(--accent); }
+
+  /* Component parts */
+  .component-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 0;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .comp-label {
+    background: var(--card2);
+    padding: 11px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--border);
+  }
+  .comp-value {
+    background: var(--card);
+    padding: 11px 14px;
+    font-size: 13.5px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+  }
+  .comp-value span { color: var(--text); font-weight: 600; }
+
+  /* Keyword highlights */
+  .kw { color: var(--accent); font-weight: 700; }
+  .kw-blue { color: var(--blue); font-weight: 700; }
+  .kw-green { color: var(--green); font-weight: 700; }
+  .kw-purple { color: var(--purple); font-weight: 700; }
+  .kw-red { color: var(--red); font-weight: 700; }
+
+  /* Quick reference cheat sheet */
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .cheat-item {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .cheat-q {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 4px;
+  }
+  .cheat-a {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  /* Benefits */
+  .benefit {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 16px;
+    background: var(--card);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .benefit-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(87,204,153,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .benefit-text { font-size: 14px; padding-top: 4px; }
+
+  /* Learning Agent special */
+  .learning-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .lcomp {
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+  }
+  .lcomp-title { font-weight: 700; font-size: 13px; margin-bottom: 5px; }
+  .lcomp-desc { font-size: 13px; color: var(--muted); }
+
+  /* Sticky TOC */
+  .toc {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 100;
+  }
+  .toc-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toc-dot:hover, .toc-dot.active { background: var(--red); border-color: var(--red); }
+
+  @media (max-width: 900px) { .toc { display: none; } }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Print friendly */
+  @media print {
+    body::before { display: none; }
+    .toc { display: none; }
+    .card:hover, .agent-card:hover { transform: none; }
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 10px 0;
+  }
+
+  /* inline tag */
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    padding: 1px 7px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  .tag-red { background: rgba(230,57,70,0.15); color: var(--red); border: 1px solid rgba(230,57,70,0.3); }
+  .tag-blue { background: rgba(76,201,240,0.15); color: var(--blue); border: 1px solid rgba(76,201,240,0.3); }
+  .tag-green { background: rgba(87,204,153,0.15); color: var(--green); border: 1px solid rgba(87,204,153,0.3); }
+
+  /* Note callout */
+  .note {
+    background: rgba(155,93,229,0.1);
+    border: 1px solid rgba(155,93,229,0.25);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 10px 0;
+  }
+  .note strong { color: var(--purple); }
+</style>
+</head>
+<body>
+
+<!-- TOC dots -->
+<nav class="toc" id="toc">
+  <div class="toc-dot" data-section="0" title="Top"></div>
+  <div class="toc-dot" data-section="1" title="Agent Basics"></div>
+  <div class="toc-dot" data-section="2" title="Intelligent Agents"></div>
+  <div class="toc-dot" data-section="3" title="Forms"></div>
+  <div class="toc-dot" data-section="4" title="Components"></div>
+  <div class="toc-dot" data-section="5" title="AI Process"></div>
+  <div class="toc-dot" data-section="6" title="Types"></div>
+  <div class="toc-dot" data-section="7" title="Rules"></div>
+  <div class="toc-dot" data-section="8" title="Structure"></div>
+  <div class="toc-dot" data-section="9" title="PEAS"></div>
+  <div class="toc-dot" data-section="10" title="Cheat Sheet"></div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" data-sec="0">
+  <div class="hero-tag">G12 COMPUTER SCIENCE · MODULE 3</div>
+  <h1>INTELLIGENT<br><span>AGENTS</span></h1>
+  <p class="hero-sub">LAST MINUTE REVIEWER · EVERYTHING YOU NEED TO KNOW</p>
+</header>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num">5</div><div class="stat-label">Agent Types</div></div>
+  <div class="stat"><div class="stat-num">3</div><div class="stat-label">Agent Forms</div></div>
+  <div class="stat"><div class="stat-num">4</div><div class="stat-label">AI Rules</div></div>
+  <div class="stat"><div class="stat-num">4</div><div class="stat-label">PEAS Parts</div></div>
+  <div class="stat"><div class="stat-num">4</div><div class="stat-label">AI Steps</div></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="container">
+
+  <!-- SECTION 1: What is an Agent -->
+  <div class="section-label reveal" data-sec="1">
+    <span class="section-num">01</span>
+    <span class="section-title">WHAT IS AN AGENT?</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="def-box reveal">
+    An <strong>agent</strong> is anything that can be viewed as <strong>perceiving its environment through sensors</strong> and <strong>acting upon that environment through actuators</strong>.
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title">The Agent Cycle</div>
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div style="background:rgba(230,57,70,0.12);border:1px solid rgba(230,57,70,0.3);border-radius:8px;padding:10px 20px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--red);">PERCEIVE</div>
+        <div style="font-size:11px;color:var(--muted);">via Sensors</div>
+      </div>
+      <div style="font-size:20px;color:var(--muted);">→</div>
+      <div style="background:rgba(244,200,66,0.1);border:1px solid rgba(244,200,66,0.3);border-radius:8px;padding:10px 20px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);">THINK</div>
+        <div style="font-size:11px;color:var(--muted);">Process</div>
+      </div>
+      <div style="font-size:20px;color:var(--muted);">→</div>
+      <div style="background:rgba(76,201,240,0.1);border:1px solid rgba(76,201,240,0.3);border-radius:8px;padding:10px 20px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--blue);">ACT</div>
+        <div style="font-size:11px;color:var(--muted);">via Actuators</div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:12px;">
+      <strong>Note:</strong> Every agent can perceive its own actions — but not always the effects of those actions.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Intelligent Agents -->
+  <div class="section-label reveal" data-sec="2">
+    <span class="section-num">02</span>
+    <span class="section-title">INTELLIGENT AGENTS (IA)</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="grid-2 reveal">
+    <div class="def-box">
+      An <strong>Intelligent Agent (IA)</strong> is an entity that makes decisions, enabling AI to be put into action. It conducts operations in the place of users or programs after sensing the environment, using actuators to initiate action.
+    </div>
+    <div class="def-box" style="border-left-color:var(--blue);">
+      <strong style="color:var(--blue);">Rational Agent</strong> — acts with the best outcome after considering <em>past and current percepts</em> (agent's perceptual inputs at a given instance). AI = study of rational agents.
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title">AI System = Agent + Environment</div>
+    <p style="color:var(--muted);font-size:14px;">An AI system is composed of an agent and its environment. The agents act in their environment. The environment may contain other agents. An intelligent agent may <span style="color:var(--text)">learn from the environment</span> to achieve goals.</p>
+    <div class="divider" style="margin:12px 0;"></div>
+    <p style="font-size:13px;color:var(--muted);">Example of a simple intelligent agent: <span class="kw">a thermostat</span></p>
+  </div>
+
+  <!-- SECTION 3: Forms of Agents -->
+  <div class="section-label reveal" data-sec="3">
+    <span class="section-num">03</span>
+    <span class="section-title">THREE FORMS OF AGENTS</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="grid-3 reveal">
+    <div class="card" style="border-top:3px solid var(--red);">
+      <div class="card-title" style="color:var(--red);">🧠 Human Agent</div>
+      <div style="margin-top:8px;">
+        <div class="component-row" style="margin-bottom:6px;border-radius:6px;overflow:hidden;border:1px solid var(--border);">
+          <div class="comp-label" style="font-size:10px;background:rgba(230,57,70,0.1);">SENSORS</div>
+          <div class="comp-value" style="font-size:13px;">Eyes, ears, skin, taste buds</div>
+        </div>
+        <div class="component-row" style="margin-bottom:0;border-radius:6px;overflow:hidden;border:1px solid var(--border);">
+          <div class="comp-label" style="font-size:10px;background:rgba(230,57,70,0.1);">ACTUATORS</div>
+          <div class="comp-value" style="font-size:13px;">Hands, fingers, legs, mouth</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--blue);">
+      <div class="card-title" style="color:var(--blue);">🤖 Robot Agent</div>
+      <div style="margin-top:8px;">
+        <div class="component-row" style="margin-bottom:6px;border-radius:6px;overflow:hidden;border:1px solid var(--border);">
+          <div class="comp-label" style="font-size:10px;background:rgba(76,201,240,0.1);">SENSORS</div>
+          <div class="comp-value" style="font-size:13px;">Camera, infrared, bumper</div>
+        </div>
+        <div class="component-row" style="margin-bottom:0;border-radius:6px;overflow:hidden;border:1px solid var(--border);">
+          <div class="comp-label" style="font-size:10px;background:rgba(76,201,240,0.1);">ACTUATORS</div>
+          <div class="comp-value" style="font-size:13px;">Grippers, wheels, lights, speakers</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green);">
+      <div class="card-title" style="color:var(--green);">💻 Software Agent</div>
+      <div style="margin-top:8px;">
+        <div class="component-row" style="margin-bottom:6px;border-radius:6px;overflow:hidden;border:1px solid var(--border);">
+          <div class="comp-label" style="font-size:10px;background:rgba(87,204,153,0.1);">SENSORS</div>
+          <div class="comp-value" style="font-size:13px;">Keystrokes, file contents</div>
+        </div>
+        <div class="component-row" style="margin-bottom:0;border-radius:6px;overflow:hidden;border:1px solid var(--border);">
+          <div class="comp-label" style="font-size:10px;background:rgba(87,204,153,0.1);">ACTUATORS</div>
+          <div class="comp-value" style="font-size:13px;">Screen output / display</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Key Components -->
+  <div class="section-label reveal" data-sec="4">
+    <span class="section-num">04</span>
+    <span class="section-title">SENSORS · ACTUATORS · EFFECTORS</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="grid-3 reveal">
+    <div class="card">
+      <div class="card-title" style="color:var(--red);">📡 Sensor</div>
+      <p style="font-size:13.5px;color:var(--muted);">Detects <span style="color:var(--text)">changes in the environment</span> and sends information to other electronic devices. An agent observes its environment through sensors.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--accent);">⚙️ Actuator</div>
+      <p style="font-size:13.5px;color:var(--muted);">Component of machines that <span style="color:var(--text)">converts energy into motion</span>. Only responsible for moving and controlling a system. Examples: electric motor, gears, rails.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--blue);">🦾 Effector</div>
+      <p style="font-size:13.5px;color:var(--muted);">Devices that <span style="color:var(--text)">directly affect the environment</span>. Examples: legs, wheels, arms, fingers, wings, fins, display screens.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 5: AI Process -->
+  <div class="section-label reveal" data-sec="5">
+    <span class="section-num">05</span>
+    <span class="section-title">PROCESS OF INTELLIGENT AGENT IN AI</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Sense</div>
+      <div class="step-text">Take inputs from environment using sensors</div>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Decide</div>
+      <div class="step-text">Consider observations to make decisions using AI</div>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Act</div>
+      <div class="step-text">Decision triggers action through actuators</div>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Learn</div>
+      <div class="step-text">Keep history of past actions for future decisions</div>
+    </div>
+  </div>
+
+  <div class="formula reveal">
+    <div class="formula-text">AGENT = ARCHITECTURE + AGENT PROGRAM</div>
+    <div class="formula-sub">Architecture = hardware/machinery · Agent Program = functions and conditions</div>
+  </div>
+
+  <!-- SECTION 6: Types of AI Agents -->
+  <div class="section-label reveal" data-sec="6">
+    <span class="section-num">06</span>
+    <span class="section-title">5 TYPES OF AI AGENTS</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="grid-2 reveal">
+    <!-- Simple Reflex -->
+    <div class="agent-card">
+      <div class="agent-header" style="background:rgba(230,57,70,0.1);border-bottom:1px solid var(--border);">
+        <div class="agent-icon" style="background:rgba(230,57,70,0.2);">⚡</div>
+        <div>
+          <div style="font-size:14px;">Simple Reflex Agent</div>
+          <div class="agent-tag tag-red">SIMPLEST</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>Decides based <span>only on current percepts</span>. Ignores percept history. Only works in <span>fully observable environments</span>.</p>
+        <br>
+        <strong style="color:var(--red);font-size:12px;">❌ PROBLEMS:</strong>
+        <ul style="margin-top:4px;">
+          <li>Very <span>limited intelligence</span></li>
+          <li>No knowledge of non-perceptual state parts</li>
+          <li>Mostly too big to generate/store</li>
+          <li>Not adaptive to changes</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Model-Based -->
+    <div class="agent-card">
+      <div class="agent-header" style="background:rgba(244,200,66,0.08);border-bottom:1px solid var(--border);">
+        <div class="agent-icon" style="background:rgba(244,200,66,0.15);">🗺️</div>
+        <div>
+          <div style="font-size:14px;">Model-Based Reflex Agent</div>
+          <div class="agent-tag" style="background:rgba(244,200,66,0.1);color:var(--accent);border:1px solid rgba(244,200,66,0.3);">PARTIAL ENV.</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>Can work in <span>partially observable environments</span> and track situations.</p>
+        <br>
+        <strong style="color:var(--accent);font-size:12px;">TWO KEY FACTORS:</strong>
+        <ul style="margin-top:4px;">
+          <li><span>Model</span> — knowledge of how things happen in the world</li>
+          <li><span>Internal State</span> — current state based on percept history</li>
+        </ul>
+        <p style="margin-top:8px;font-size:12px;">Updates require: how the world evolves + how actions affect the world.</p>
+      </div>
+    </div>
+
+    <!-- Goal-Based -->
+    <div class="agent-card">
+      <div class="agent-header" style="background:rgba(76,201,240,0.08);border-bottom:1px solid var(--border);">
+        <div class="agent-icon" style="background:rgba(76,201,240,0.15);">🎯</div>
+        <div>
+          <div style="font-size:14px;">Goal-Based Agent</div>
+          <div class="agent-tag tag-blue">PROACTIVE</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>Expands model-based agent by having <span>goal information</span>. Chooses actions to achieve goals. May consider long action sequences.</p>
+        <br>
+        <p>Consideration of scenarios = <span>searching and planning</span> → makes agent <span>proactive</span>.</p>
+      </div>
+    </div>
+
+    <!-- Utility-Based -->
+    <div class="agent-card">
+      <div class="agent-header" style="background:rgba(155,93,229,0.08);border-bottom:1px solid var(--border);">
+        <div class="agent-icon" style="background:rgba(155,93,229,0.15);">📊</div>
+        <div>
+          <div style="font-size:14px;">Utility-Based Agent</div>
+          <div class="agent-tag" style="background:rgba(155,93,229,0.1);color:var(--purple);border:1px solid rgba(155,93,229,0.3);">BEST ACTION</div>
+        </div>
+      </div>
+      <div class="agent-body">
+        <p>Like goal-based + <span>extra utility measurement</span>. Acts on goals AND the best way to achieve them.</p>
+        <br>
+        <p>Useful when <span>multiple alternatives</span> exist. <span>Utility function</span> maps each state to a real number to check efficiency.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Learning Agent — full width special -->
+  <div class="agent-card reveal" style="margin-top:14px;">
+    <div class="agent-header" style="background:rgba(87,204,153,0.08);border-bottom:1px solid var(--border);">
+      <div class="agent-icon" style="background:rgba(87,204,153,0.15);">🧬</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;">Learning Agent</div>
+        <div class="agent-tag tag-green">MOST ADVANCED · SELF-IMPROVING</div>
+      </div>
+    </div>
+    <div class="agent-body" style="padding-top:16px;">
+      <p style="margin-bottom:14px;">Can <span>learn from past experiences</span>. Starts with basic knowledge and adapts automatically through learning. Able to <span>learn, analyze performance</span>, and find new ways to improve.</p>
+      <div class="learning-grid">
+        <div class="lcomp" style="background:rgba(87,204,153,0.06);border-color:rgba(87,204,153,0.2);">
+          <div class="lcomp-title" style="color:var(--green);">📚 Learning Element</div>
+          <div class="lcomp-desc">Responsible for making improvements by learning from the environment.</div>
+        </div>
+        <div class="lcomp" style="background:rgba(244,200,66,0.06);border-color:rgba(244,200,66,0.2);">
+          <div class="lcomp-title" style="color:var(--accent);">🔍 Critic</div>
+          <div class="lcomp-desc">Provides feedback to the learning element on how well the agent is doing vs. a fixed performance standard.</div>
+        </div>
+        <div class="lcomp" style="background:rgba(76,201,240,0.06);border-color:rgba(76,201,240,0.2);">
+          <div class="lcomp-title" style="color:var(--blue);">⚡ Performance Element</div>
+          <div class="lcomp-desc">Responsible for selecting external action.</div>
+        </div>
+        <div class="lcomp" style="background:rgba(155,93,229,0.06);border-color:rgba(155,93,229,0.2);">
+          <div class="lcomp-title" style="color:var(--purple);">💡 Problem Generator</div>
+          <div class="lcomp-desc">Suggests actions that will lead to new and informative experiences.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: Rules -->
+  <div class="section-label reveal" data-sec="7">
+    <span class="section-num">07</span>
+    <span class="section-title">4 RULES OF AN AI AGENT</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="reveal">
+    <div class="rule-item">
+      <div class="rule-num">1</div>
+      <div class="rule-text">An AI agent must have the ability to <strong>perceive the environment</strong>.</div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">2</div>
+      <div class="rule-text">The <strong>observation must be used</strong> to make decisions.</div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">3</div>
+      <div class="rule-text"><strong>Decision should result in an action</strong>.</div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">4</div>
+      <div class="rule-text">The action taken by an AI agent must be <strong>rational</strong>.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: Structure -->
+  <div class="section-label reveal" data-sec="8">
+    <span class="section-num">08</span>
+    <span class="section-title">STRUCTURE OF INTELLIGENT AGENTS</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="formula reveal">
+    <div class="formula-text">AGENT = ARCHITECTURE + AGENT PROGRAM</div>
+    <div class="formula-sub">The task of AI is to design an agent program that implements the agent function.</div>
+  </div>
+
+  <div class="reveal">
+    <div class="component-row">
+      <div class="comp-label" style="color:var(--red);">ARCHITECTURE</div>
+      <div class="comp-value">Machinery or devices consisting of actuators and sensors. Examples: <span>personal computer, car, camera</span>.</div>
+    </div>
+    <div class="component-row">
+      <div class="comp-label" style="color:var(--accent);">AGENT FUNCTION</div>
+      <div class="comp-value">Maps actions from a certain <span>percept sequence</span> (history of what the agent has perceived). Produced by the agent program running on the architecture.</div>
+    </div>
+    <div class="component-row">
+      <div class="comp-label" style="color:var(--blue);">AGENT PROGRAM</div>
+      <div class="comp-value">The <span>implementation / execution</span> of the agent function.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 9: PEAS -->
+  <div class="section-label reveal" data-sec="9">
+    <span class="section-num">09</span>
+    <span class="section-title">PEAS REPRESENTATION</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title">What is PEAS?</div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">PEAS is a model used to define an AI/rational agent by grouping its properties into four categories. Performance measure is the <span style="color:var(--text)">objective for the success of an agent's behavior</span>.</p>
+    <table class="peas-table">
+      <thead>
+        <tr>
+          <th>LETTER</th>
+          <th>STANDS FOR</th>
+          <th>SELF-DRIVING CAR EXAMPLE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="peas-letter" style="color:var(--red);">P</span></td>
+          <td><strong>Performance Measure</strong><br><span style="font-size:12px;color:var(--muted);">Objective for success</span></td>
+          <td style="color:var(--muted);">Safety, time, legal drive, comfort</td>
+        </tr>
+        <tr>
+          <td><span class="peas-letter" style="color:var(--accent);">E</span></td>
+          <td><strong>Environment</strong><br><span style="font-size:12px;color:var(--muted);">Surroundings & context</span></td>
+          <td style="color:var(--muted);">Roads, other vehicles, road signs, pedestrian</td>
+        </tr>
+        <tr>
+          <td><span class="peas-letter" style="color:var(--blue);">A</span></td>
+          <td><strong>Actuators</strong><br><span style="font-size:12px;color:var(--muted);">How agent acts</span></td>
+          <td style="color:var(--muted);">Steering, accelerator, brake, signal, horn</td>
+        </tr>
+        <tr>
+          <td><span class="peas-letter" style="color:var(--green);">S</span></td>
+          <td><strong>Sensors</strong><br><span style="font-size:12px;color:var(--muted);">How agent perceives</span></td>
+          <td style="color:var(--muted);">Camera, GPS, speedometer, odometer, accelerometer, sonar</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 10: Benefits -->
+  <div class="section-label reveal">
+    <span class="section-num">10</span>
+    <span class="section-title">BENEFITS OF INTELLIGENT AGENTS</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="reveal">
+    <div class="benefit">
+      <div class="benefit-icon">🚀</div>
+      <div class="benefit-text">Performs actions based on AI decisions — converts <strong>ideas into action</strong>.</div>
+    </div>
+    <div class="benefit">
+      <div class="benefit-icon">🎙️</div>
+      <div class="benefit-text">Can work on simple commands like <strong>human voice</strong> (e.g., Alexa, Siri).</div>
+    </div>
+    <div class="benefit">
+      <div class="benefit-icon">📈</div>
+      <div class="benefit-text"><strong>Evolve over time</strong>, unlike classic agents that only perform predefined actions.</div>
+    </div>
+    <div class="benefit">
+      <div class="benefit-icon">🎯</div>
+      <div class="benefit-text">Can take <strong>utility measurements</strong> into account, making them more realistic.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 11: CHEAT SHEET -->
+  <div class="section-label reveal" data-sec="10">
+    <span class="section-num">★</span>
+    <span class="section-title">QUICK CHEAT SHEET</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cheat-grid reveal">
+    <div class="cheat-item">
+      <div class="cheat-q">Agent cycle?</div>
+      <div class="cheat-a">Perceive → Think → Act</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">AI formula</div>
+      <div class="cheat-a">Agent = Architecture + Program</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">PEAS stands for?</div>
+      <div class="cheat-a">Performance, Environment, Actuators, Sensors</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Simplest agent type?</div>
+      <div class="cheat-a">Simple Reflex Agent</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Works in partial environment?</div>
+      <div class="cheat-a">Model-Based Reflex Agent</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Has searching & planning?</div>
+      <div class="cheat-a">Goal-Based Agent</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Uses utility function?</div>
+      <div class="cheat-a">Utility-Based Agent</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Can learn from experience?</div>
+      <div class="cheat-a">Learning Agent</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Number of agent types?</div>
+      <div class="cheat-a">5 types</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Number of AI rules?</div>
+      <div class="cheat-a">4 rules</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Example of IA?</div>
+      <div class="cheat-a">Thermostat</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Converts energy to motion?</div>
+      <div class="cheat-a">Actuator</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Detects env. changes?</div>
+      <div class="cheat-a">Sensor</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Affects environment?</div>
+      <div class="cheat-a">Effector</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Learning agent components?</div>
+      <div class="cheat-a">Learning, Critic, Performance, Problem Generator</div>
+    </div>
+    <div class="cheat-item">
+      <div class="cheat-q">Simple reflex needs?</div>
+      <div class="cheat-a">Fully observable environment</div>
+    </div>
+  </div>
+
+  <!-- Final reminder -->
+  <div style="margin-top:36px;" class="reveal">
+    <div style="background:linear-gradient(135deg,rgba(230,57,70,0.15),rgba(76,201,240,0.08));border:1px solid rgba(230,57,70,0.25);border-radius:12px;padding:24px 28px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--red);margin-bottom:8px;">YOU GOT THIS! 🔥</div>
+      <p style="color:var(--muted);font-size:14px;">Remember: <span style="color:var(--text)">Perceive → Think → Act</span> &nbsp;·&nbsp; <span style="color:var(--text)">5 Agent Types</span> &nbsp;·&nbsp; <span style="color:var(--text)">PEAS</span> &nbsp;·&nbsp; <span style="color:var(--text)">4 Rules</span></p>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  G12 COMPUTER SCIENCE · MODULE 3: INTELLIGENT AGENTS · LAST MINUTE REVIEWER
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.08 });
+  reveals.forEach(r => observer.observe(r));
+
+  // TOC active tracking
+  const sections = document.querySelectorAll('[data-sec]');
+  const dots = document.querySelectorAll('.toc-dot');
+  const secObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = e.target.dataset.sec;
+        dots.forEach(d => d.classList.remove('active'));
+        const dot = document.querySelector(`.toc-dot[data-section="${idx}"]`);
+        if (dot) dot.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => secObserver.observe(s));
+
+  // TOC click navigation
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = dot.dataset.section;
+      const target = document.querySelector(`[data-sec="${idx}"]`);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
