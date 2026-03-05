@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3: Intelligent Agents — Interactive Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080e;
+    --surface: #111119;
+    --card: #16161f;
+    --card2: #1c1c28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #eeeef5;
+    --muted: #7777a0;
+    --dim: #444460;
+    --red: #ff3b5c;
+    --amber: #ffb830;
+    --cyan: #00d4ff;
+    --green: #00e58a;
+    --purple: #b06aff;
+    --glow-red: rgba(255,59,92,0.18);
+    --glow-green: rgba(0,229,138,0.15);
+    --glow-amber: rgba(255,184,48,0.15);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Radial grid */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,59,92,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,59,92,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 10;
+    padding: 24px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(30px);
+  }
+
+  /* ===== START SCREEN ===== */
+  #startScreen {
+    text-align: center;
+    background: var(--bg);
+  }
+
+  .start-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,59,92,0.1);
+    border: 1px solid rgba(255,59,92,0.3);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--red);
+    margin-bottom: 28px;
+    animation: fadeIn 0.6s ease both;
+  }
+
+  .start-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 10vw, 110px);
+    letter-spacing: 5px;
+    line-height: 0.9;
+    animation: fadeIn 0.6s 0.1s ease both;
+  }
+  .start-title .line2 { color: var(--red); }
+
+  .start-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin: 20px 0 40px;
+    animation: fadeIn 0.6s 0.2s ease both;
+  }
+
+  .start-stats {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    animation: fadeIn 0.6s 0.3s ease both;
+  }
+  .start-stat {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 22px;
+    text-align: center;
+    min-width: 100px;
+  }
+  .start-stat-n {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .start-stat-l {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-top: 2px;
+    letter-spacing: 1px;
+  }
+
+  .mode-select {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 32px;
+    animation: fadeIn 0.6s 0.4s ease both;
+  }
+  .mode-btn {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 22px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-align: left;
+    min-width: 160px;
+  }
+  .mode-btn:hover { border-color: var(--red); background: rgba(255,59,92,0.08); }
+  .mode-btn.selected { border-color: var(--red); background: rgba(255,59,92,0.12); color: var(--red); }
+  .mode-btn .mode-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+  .mode-btn .mode-label { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; font-family: 'Space Mono', monospace; }
+
+  .btn-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 16px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 30px rgba(255,59,92,0.3);
+    animation: fadeIn 0.6s 0.5s ease both;
+  }
+  .btn-start:hover {
+    background: #ff5570;
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(255,59,92,0.5);
+  }
+
+  /* ===== QUIZ SCREEN ===== */
+  #quizScreen {
+    background: var(--bg);
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding: 0;
+    position: fixed;
+    inset: 0;
+    display: flex;
+    z-index: 10;
+  }
+  #quizScreen.hidden { display: none; }
+
+  /* Top bar */
+  .quiz-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(8,8,14,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .q-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .q-counter span { color: var(--text); font-weight: 700; }
+
+  .progress-track {
+    flex: 1;
+    height: 5px;
+    background: var(--card2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red), var(--amber));
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+
+  .score-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .score-badge .score-val { color: var(--green); font-weight: 700; }
+
+  /* Quiz body */
+  .quiz-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    min-height: calc(100vh - 60px);
+  }
+
+  .question-card {
+    width: 100%;
+    max-width: 720px;
+    animation: cardIn 0.4s ease both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateX(30px) scale(0.98); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  @keyframes cardOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-30px); }
+  }
+  .card-leaving { animation: cardOut 0.25s ease forwards; }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .q-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--red);
+    background: rgba(255,59,92,0.1);
+    border: 1px solid rgba(255,59,92,0.25);
+    padding: 3px 12px;
+    border-radius: 4px;
+  }
+  .q-category {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--dim);
+  }
+  .q-bonus {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+    background: rgba(255,184,48,0.1);
+    border: 1px solid rgba(255,184,48,0.25);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  .q-text {
+    font-size: clamp(17px, 2.5vw, 21px);
+    font-weight: 600;
+    line-height: 1.45;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .choice-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 14.5px;
+    text-align: left;
+    transition: all 0.18s;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  .choice-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,59,92,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .choice-btn:not(.answered):hover {
+    border-color: rgba(255,59,92,0.4);
+    background: rgba(255,59,92,0.07);
+    transform: translateX(4px);
+  }
+  .choice-btn:not(.answered):hover::before { opacity: 1; }
+
+  .choice-letter {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    margin-top: 1px;
+  }
+
+  .choice-text { line-height: 1.4; padding-top: 4px; }
+
+  /* Answer states */
+  .choice-btn.correct {
+    border-color: var(--green);
+    background: rgba(0,229,138,0.08);
+    animation: correctPulse 0.4s ease;
+  }
+  .choice-btn.correct .choice-letter {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+  }
+  .choice-btn.wrong {
+    border-color: var(--red);
+    background: rgba(255,59,92,0.08);
+    animation: wrongShake 0.4s ease;
+  }
+  .choice-btn.wrong .choice-letter {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+  .choice-btn.reveal-correct {
+    border-color: rgba(0,229,138,0.4);
+    background: rgba(0,229,138,0.04);
+  }
+  .choice-btn.reveal-correct .choice-letter {
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .choice-btn.answered { cursor: not-allowed; transform: none !important; }
+
+  @keyframes correctPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+  @keyframes wrongShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  /* Feedback bar */
+  .feedback-bar {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    animation: feedIn 0.3s ease both;
+  }
+  .feedback-bar.show { display: flex; }
+  .feedback-bar.correct-fb {
+    background: rgba(0,229,138,0.08);
+    border: 1px solid rgba(0,229,138,0.25);
+    color: var(--green);
+  }
+  .feedback-bar.wrong-fb {
+    background: rgba(255,59,92,0.08);
+    border: 1px solid rgba(255,59,92,0.25);
+    color: #ff8fa0;
+  }
+  .feedback-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .feedback-text strong { display: block; margin-bottom: 2px; }
+  .feedback-text .correct-ans { color: var(--green); font-weight: 600; }
+
+  @keyframes feedIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Nav buttons */
+  .q-nav {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-next {
+    background: var(--red);
+    color: #fff;
+    margin-left: auto;
+    box-shadow: 0 0 20px rgba(255,59,92,0.2);
+  }
+  .btn-next:hover { background: #ff5570; transform: translateY(-1px); box-shadow: 0 0 30px rgba(255,59,92,0.4); }
+  .btn-next:disabled { background: var(--card2); color: var(--dim); cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-skip {
+    background: var(--card);
+    color: var(--muted);
+    border: 1px solid var(--border2);
+    font-size: 14px;
+    letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+  }
+  .btn-skip:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Question map toggle */
+  .q-map-btn {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .q-map-btn:hover { color: var(--text); border-color: var(--border2); }
+
+  /* Q Map drawer */
+  .qmap-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 20px;
+  }
+  .qmap-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  .qmap-drawer {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 70vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .qmap-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .qmap-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .qmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    gap: 6px;
+  }
+  .qmap-dot {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .qmap-dot.unanswered { background: var(--card2); color: var(--muted); border-color: var(--border); }
+  .qmap-dot.answered-c { background: rgba(0,229,138,0.15); color: var(--green); border-color: rgba(0,229,138,0.3); }
+  .qmap-dot.answered-w { background: rgba(255,59,92,0.15); color: var(--red); border-color: rgba(255,59,92,0.3); }
+  .qmap-dot.skipped { background: rgba(255,184,48,0.1); color: var(--amber); border-color: rgba(255,184,48,0.25); }
+  .qmap-dot.current { border-color: var(--cyan) !important; }
+  .qmap-dot:hover { transform: scale(1.1); }
+  .qmap-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .qmap-leg {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+  .qmap-leg-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* ===== RESULTS SCREEN ===== */
+  #resultsScreen {
+    background: var(--bg);
+    padding: 32px 24px;
+    overflow-y: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .results-inner {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 20px 0;
+  }
+
+  .results-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 8vw, 80px);
+    letter-spacing: 4px;
+    text-align: center;
+    line-height: 0.9;
+    margin-bottom: 8px;
+  }
+
+  .score-ring {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 32px 0;
+  }
+  .score-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--red) calc(var(--pct) * 1%), var(--card2) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 40px rgba(255,59,92,0.2);
+  }
+  .score-circle::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+  .score-circle-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+  .score-pct {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .score-breakdown {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .score-chip {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 90px;
+  }
+  .chip-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    line-height: 1;
+  }
+  .chip-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-top: 3px;
+    letter-spacing: 1px;
+  }
+
+  .grade-banner {
+    text-align: center;
+    margin: 20px 0;
+    padding: 16px;
+    border-radius: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+  }
+
+  .results-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 24px 0;
+  }
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 10px;
+    padding: 13px 24px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .btn-retry { background: var(--red); color: #fff; box-shadow: 0 0 20px rgba(255,59,92,0.3); }
+  .btn-retry:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,59,92,0.5); }
+  .btn-review { background: var(--card); color: var(--text); border: 1px solid var(--border2); }
+  .btn-review:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  /* Review list */
+  .review-section { margin-top: 32px; }
+  .review-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .review-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .review-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+  .review-item.wrong-item { border-color: rgba(255,59,92,0.2); }
+  .review-q {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .review-qnum {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--red);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 13px;
+  }
+  .review-ans {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+  .review-ans.your-wrong { background: rgba(255,59,92,0.08); color: var(--red); }
+  .review-ans.correct-ans { background: rgba(0,229,138,0.08); color: var(--green); }
+  .review-ans.your-correct { background: rgba(0,229,138,0.08); color: var(--green); }
+  .ans-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Streaks / combos */
+  .combo-toast {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    background: var(--card);
+    border: 1px solid var(--amber);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--amber);
+    z-index: 300;
+    animation: toastIn 0.3s ease;
+    pointer-events: none;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(20px) scale(0.9); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+  }
+
+  /* Timer */
+  .timer-ring {
+    width: 36px;
+    height: 36px;
+    position: relative;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring circle {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    cx: 18; cy: 18; r: 15;
+  }
+  .timer-bg { stroke: var(--card2); }
+  .timer-fg {
+    stroke: var(--cyan);
+    stroke-dasharray: 94.2;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.5s;
+  }
+  .timer-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--cyan);
+  }
+
+  @media (max-width: 600px) {
+    .quiz-topbar { padding: 10px 14px; gap: 10px; }
+    .quiz-body { padding: 20px 14px; }
+    .q-text { font-size: 16px; }
+    .choice-btn { font-size: 13.5px; padding: 12px 14px; }
+  }
+
+  .confetti-wrap {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== START SCREEN ===== -->
+<div class="screen" id="startScreen">
+  <div class="start-badge">● G12 COMPUTER SCIENCE · MODULE 3</div>
+  <div class="start-title">
+    <div>INTELLIGENT</div>
+    <div class="line2">AGENTS QUIZ</div>
+  </div>
+  <p class="start-sub">TEST YOUR KNOWLEDGE · 40 QUESTIONS + 5 BONUS</p>
+
+  <div class="start-stats">
+    <div class="start-stat"><div class="start-stat-n">40</div><div class="start-stat-l">MAIN Q's</div></div>
+    <div class="start-stat"><div class="start-stat-n">5</div><div class="start-stat-l">BONUS Q's</div></div>
+    <div class="start-stat"><div class="start-stat-n">4</div><div class="start-stat-l">CHOICES</div></div>
+    <div class="start-stat"><div class="start-stat-n">⚡</div><div class="start-stat-l">INSTANT FB</div></div>
+  </div>
+
+  <div style="text-align:center;margin-bottom:14px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;">SELECT MODE</div>
+  <div class="mode-select">
+    <button class="mode-btn selected" onclick="selectMode('all', this)">
+      <span class="mode-icon">📋</span>
+      All 45 Questions
+      <div class="mode-label">FULL TEST</div>
+    </button>
+    <button class="mode-btn" onclick="selectMode('main', this)">
+      <span class="mode-icon">🎯</span>
+      40 Main Only
+      <div class="mode-label">NO BONUS</div>
+    </button>
+    <button class="mode-btn" onclick="selectMode('shuffle', this)">
+      <span class="mode-icon">🔀</span>
+      Shuffle Mode
+      <div class="mode-label">RANDOM ORDER</div>
+    </button>
+    <button class="mode-btn" onclick="selectMode('rapid', this)">
+      <span class="mode-icon">⏱️</span>
+      Speed Round
+      <div class="mode-label">20s PER Q</div>
+    </button>
+  </div>
+
+  <button class="btn-start" onclick="startQuiz()">
+    BEGIN QUIZ →
+  </button>
+</div>
+
+<!-- ===== QUIZ SCREEN ===== -->
+<div class="screen hidden" id="quizScreen">
+  <div class="quiz-topbar">
+    <div class="q-counter">Q <span id="qNumDisplay">1</span> / <span id="qTotalDisplay">45</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="score-badge">✓ <span class="score-val" id="scoreDisplay">0</span></div>
+    <div id="timerWrap" style="display:none;">
+      <div class="timer-ring">
+        <svg viewBox="0 0 36 36">
+          <circle class="timer-bg" cx="18" cy="18" r="15"/>
+          <circle class="timer-fg" id="timerCircle" cx="18" cy="18" r="15"/>
+        </svg>
+        <div class="timer-text" id="timerText">20</div>
+      </div>
+    </div>
+    <button class="q-map-btn" onclick="openQMap()">MAP</button>
+  </div>
+
+  <div class="quiz-body">
+    <div class="question-card" id="questionCard">
+      <div class="q-meta">
+        <div class="q-num" id="qNumBadge">Q 01</div>
+        <div class="q-category" id="qCategory">AGENT BASICS</div>
+        <div class="q-bonus" id="qBonus" style="display:none;">★ BONUS</div>
+      </div>
+      <div class="q-text" id="qText"></div>
+      <div class="choices" id="choicesContainer"></div>
+      <div class="feedback-bar" id="feedbackBar">
+        <div class="feedback-icon" id="feedbackIcon"></div>
+        <div class="feedback-text" id="feedbackText"></div>
+      </div>
+      <div class="q-nav">
+        <button class="btn-nav btn-skip" id="skipBtn" onclick="skipQuestion()">SKIP</button>
+        <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()" disabled>NEXT →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULTS SCREEN ===== -->
+<div class="screen hidden" id="resultsScreen">
+  <div class="results-inner">
+    <div class="results-title" id="resultsTitle">RESULTS</div>
+
+    <div class="score-ring">
+      <div class="score-circle" id="scoreCircle" style="--pct:0">
+        <div class="score-circle-inner">
+          <div class="score-pct" id="scorePct">0%</div>
+          <div class="score-label">SCORE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-breakdown">
+      <div class="score-chip"><div class="chip-val" style="color:var(--green)" id="resCorrect">0</div><div class="chip-lbl">CORRECT</div></div>
+      <div class="score-chip"><div class="chip-val" style="color:var(--red)" id="resWrong">0</div><div class="chip-lbl">WRONG</div></div>
+      <div class="score-chip"><div class="chip-val" style="color:var(--amber)" id="resSkipped">0</div><div class="chip-lbl">SKIPPED</div></div>
+      <div class="score-chip"><div class="chip-val" style="color:var(--purple)" id="resBonus">0</div><div class="chip-lbl">BONUS</div></div>
+    </div>
+
+    <div class="grade-banner" id="gradeBanner"></div>
+
+    <div class="results-actions">
+      <button class="btn-action btn-retry" onclick="retryQuiz()">↺ RETRY</button>
+      <button class="btn-action btn-review" onclick="toggleReview()">📋 REVIEW ANSWERS</button>
+    </div>
+
+    <div class="review-section" id="reviewSection" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- Q Map Overlay -->
+<div class="qmap-overlay" id="qmapOverlay" onclick="closeQMap(event)">
+  <div class="qmap-drawer">
+    <div class="qmap-title">
+      QUESTION MAP
+      <button class="qmap-close" onclick="closeQMap()">✕</button>
+    </div>
+    <div class="qmap-grid" id="qmapGrid"></div>
+    <div class="qmap-legend">
+      <div class="qmap-leg"><div class="qmap-leg-dot" style="background:var(--card2);border:1px solid var(--border)"></div>Unanswered</div>
+      <div class="qmap-leg"><div class="qmap-leg-dot" style="background:rgba(0,229,138,0.3)"></div>Correct</div>
+      <div class="qmap-leg"><div class="qmap-leg-dot" style="background:rgba(255,59,92,0.3)"></div>Wrong</div>
+      <div class="qmap-leg"><div class="qmap-leg-dot" style="background:rgba(255,184,48,0.2)"></div>Skipped</div>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+const ALL_QUESTIONS = [
+  // 1-5: Agent Basics
+  { q: "What is an agent in the context of AI?", choices: ["A computer program that only stores data","Anything that perceives its environment through sensors and acts upon it through actuators","A robot that can move around","A database management system"], ans: 1, cat: "AGENT BASICS" },
+  { q: "An agent runs in the cycle of:", choices: ["Storing, Processing, Outputting","Perceiving, Thinking, and Acting","Inputting, Analyzing, and Storing","Sensing, Transmitting, and Displaying"], ans: 1, cat: "AGENT BASICS" },
+  { q: "Which of the following is NOT a form of agent?", choices: ["Human agent","Robot agent","Software agent","Digital agent"], ans: 3, cat: "AGENT BASICS" },
+  { q: "For a human agent, which of the following are sensors?", choices: ["Hands and legs","Eyes, ears, skin, and taste buds","Mouth and expressions","Fingers and arms"], ans: 1, cat: "AGENT BASICS" },
+  { q: "For a robot agent, which of the following are actuators?", choices: ["Camera and infrared","Bumper and touch sensors","Grippers, wheels, lights, and speakers","GPS and accelerometer"], ans: 2, cat: "AGENT BASICS" },
+  // 6-10: Components
+  { q: "A sensor is a device that:", choices: ["Converts energy into motion","Detects changes in the environment and sends information to other devices","Affects the environment directly","Stores past percept history"], ans: 1, cat: "COMPONENTS" },
+  { q: "Which of the following best describes an actuator?", choices: ["A device that detects environmental changes","A component that affects the environment through its outputs","A component of machines that converts energy into motion","A representation of the agent's past actions"], ans: 2, cat: "COMPONENTS" },
+  { q: "Effectors are devices that:", choices: ["Only receive information from the environment","Affect the environment","Detect changes in the environment","Store sensor data"], ans: 1, cat: "COMPONENTS" },
+  { q: "Which of the following is an example of an effector?", choices: ["Camera","GPS","Arms and wheels","Infrared sensor"], ans: 2, cat: "COMPONENTS" },
+  { q: "For a software agent, what serves as sensory input?", choices: ["Cameras and microphones","Keystrokes and file contents","Robotic arms and motors","GPS and odometers"], ans: 1, cat: "COMPONENTS" },
+  // 11-15: Intelligent Agents
+  { q: "An intelligent agent (IA) is best described as:", choices: ["A machine that only follows pre-defined rules","An entity that makes decisions enabling AI to be put into action","A software that only stores data","A sensor array system"], ans: 1, cat: "INTELLIGENT AGENTS" },
+  { q: "AI is defined as the study of:", choices: ["Logical programming","Rational agents","Computer networks","Data storage"], ans: 1, cat: "INTELLIGENT AGENTS" },
+  { q: "A rational agent acts with:", choices: ["The fastest possible speed","The least amount of memory usage","The best outcome after considering past and current percepts","Random decisions for variety"], ans: 2, cat: "INTELLIGENT AGENTS" },
+  { q: "What does 'percepts' refer to in AI?", choices: ["The agent's storage capacity","The agent's perceptual inputs at a given instance","The output actions of an agent","The memory of future plans"], ans: 1, cat: "INTELLIGENT AGENTS" },
+  { q: "Which of the following is given as an example of a simple intelligent agent?", choices: ["A robot vacuum cleaner","A thermostat","A chess-playing computer","A self-driving car"], ans: 1, cat: "INTELLIGENT AGENTS" },
+  // 16-20: AI Process
+  { q: "What is the first step in the process of an AI agent?", choices: ["Making decisions using AI","Taking inputs from the environment using sensors","Triggering actions through actuators","Keeping history of past actions"], ans: 1, cat: "AI PROCESS" },
+  { q: "An AI agent is a combination of:", choices: ["Hardware and software","Sensors and actuators","Architecture and agent program","Input and output devices"], ans: 2, cat: "AI PROCESS" },
+  { q: "In the AI agent process, after gathering observations, what happens next?", choices: ["Actions are triggered immediately","Observations are used for making decisions using AI","The agent shuts down","The agent stores all data permanently"], ans: 1, cat: "AI PROCESS" },
+  { q: "Which step in the AI process involves using feedback from past actions?", choices: ["Step 1 – Taking inputs","Step 2 – Making decisions","Step 3 – Triggering action","Step 4 – Using past action history for future decisions"], ans: 3, cat: "AI PROCESS" },
+  { q: "For AI agents, what are the equivalents of human 'eyes and ears' as input sensors?", choices: ["Robotic arms and motors","Cameras and NLP systems","Keyboards and mice","Displays and speakers"], ans: 1, cat: "AI PROCESS" },
+  // 21-30: Types
+  { q: "How many types of AI agents are there based on intelligence and capability?", choices: ["Three","Four","Five","Six"], ans: 2, cat: "AGENT TYPES" },
+  { q: "Which type of agent takes decisions based only on current percepts, ignoring percept history?", choices: ["Goal-based agent","Model-based reflex agent","Simple reflex agent","Learning agent"], ans: 2, cat: "AGENT TYPES" },
+  { q: "Simple reflex agents only succeed in what type of environment?", choices: ["Partially observable environments","Fully observable environments","Unknown environments","Hostile environments"], ans: 1, cat: "AGENT TYPES" },
+  { q: "Which type of agent can work in a partially observable environment and track the situation?", choices: ["Simple reflex agent","Model-based reflex agent","Utility-based agent","Goal-based agent"], ans: 1, cat: "AGENT TYPES" },
+  { q: "The 'Model' in a model-based agent refers to:", choices: ["A 3D representation of the environment","Knowledge about how things happen in the world","The agent's memory storage system","A simulation program"], ans: 1, cat: "AGENT TYPES" },
+  { q: "Goal-based agents expand the capabilities of model-based agents by:", choices: ["Using utility functions","Adding memory to the agent","Having 'goal' information","Learning from experience"], ans: 2, cat: "AGENT TYPES" },
+  { q: "The process of considering different scenarios to achieve a goal is called:", choices: ["Sensing and perceiving","Searching and planning","Thinking and deciding","Memorizing and storing"], ans: 1, cat: "AGENT TYPES" },
+  { q: "What makes utility-based agents different from goal-based agents?", choices: ["Utility agents have no goals","They provide an extra component of utility measurement","Utility agents are simpler","Utility agents do not use sensors"], ans: 1, cat: "AGENT TYPES" },
+  { q: "The utility function in a utility-based agent maps each state to:", choices: ["A visual display","A real number to check efficiency","An action command","A sensor reading"], ans: 1, cat: "AGENT TYPES" },
+  { q: "Which type of agent can learn from its past experiences?", choices: ["Simple reflex agent","Model-based reflex agent","Goal-based agent","Learning agent"], ans: 3, cat: "AGENT TYPES" },
+  // 31-40: Rules, Structure, PEAS, Benefits
+  { q: "Which component of a learning agent is responsible for making improvements by learning from the environment?", choices: ["Critic","Learning element","Performance element","Problem generator"], ans: 1, cat: "LEARNING AGENT" },
+  { q: "The Critic in a learning agent:", choices: ["Suggests new actions to try","Provides feedback on how well the agent is doing","Selects external actions","Stores the agent's memories"], ans: 1, cat: "LEARNING AGENT" },
+  { q: "The Problem Generator in a learning agent is responsible for:", choices: ["Evaluating agent performance","Selecting which actions to take","Suggesting actions leading to new and informative experiences","Providing sensor readings"], ans: 2, cat: "LEARNING AGENT" },
+  { q: "What does Rule 4 of AI agents state?", choices: ["An AI agent must perceive the environment","Observation must be used to make decisions","Decisions should result in an action","The action taken by an AI agent must be rational"], ans: 3, cat: "AI RULES" },
+  { q: "What does the formula 'Agent = Architecture + Agent Program' mean?", choices: ["An agent is built by combining hardware machinery with program logic","An agent is only software","Architecture refers only to visual design","Agent programs run independently of hardware"], ans: 0, cat: "STRUCTURE" },
+  { q: "In PEAS, what does the 'P' stand for?", choices: ["Program","Perception","Performance measure","Planning"], ans: 2, cat: "PEAS" },
+  { q: "In PEAS, what does the 'E' stand for?", choices: ["Effector","Environment","Evaluation","Execution"], ans: 1, cat: "PEAS" },
+  { q: "For a self-driving car, which of the following is an Actuator?", choices: ["Camera","GPS","Speedometer","Steering wheel and brake"], ans: 3, cat: "PEAS" },
+  { q: "For a self-driving car, which of the following is a Sensor?", choices: ["Horn","Accelerator","GPS and camera","Steering"], ans: 2, cat: "PEAS" },
+  { q: "Which of the following is a benefit of using intelligent agents in AI?", choices: ["They always make perfect decisions","They can convert ideas into action and evolve over time","They replace all human workers permanently","They never require updates"], ans: 1, cat: "BENEFITS" },
+  // 41-45: BONUS
+  { q: "Which of the following is NOT a problem of the Simple Reflex Agent design?", choices: ["Very limited intelligence","Not adaptive to changes","Can work in partially observable environments","Mostly too big to generate and store"], ans: 2, cat: "BONUS", bonus: true },
+  { q: "In the structure of an intelligent agent, what does 'architecture' refer to?", choices: ["The agent's software program","The machinery or devices consisting of actuators and sensors","The agent's decision-making algorithm","The agent's learning module"], ans: 1, cat: "BONUS", bonus: true },
+  { q: "What is the 'Percept Sequence' in an agent function?", choices: ["A list of future actions","A history of what the intelligent agent has perceived","A sequence of programmed responses","A series of test inputs"], ans: 1, cat: "BONUS", bonus: true },
+  { q: "Intelligent agents are called 'intelligent' because:", choices: ["They are physically large machines","They can only follow simple rules","They may learn in the process of achieving goals","They are made of intelligent materials"], ans: 2, cat: "BONUS", bonus: true },
+  { q: "Which type of AI agent would be most suitable when there are multiple possible alternatives and the agent must choose the best action?", choices: ["Simple reflex agent","Model-based reflex agent","Utility-based agent","Simple goal-based agent"], ans: 2, cat: "BONUS", bonus: true },
+];
+
+const LETTERS = ['A','B','C','D'];
+let mode = 'all';
+let questions = [];
+let current = 0;
+let score = 0;
+let streak = 0;
+let results = []; // {answered: bool, correct: bool, skipped: bool, chosen: int}
+let timerInterval = null;
+let timerSecs = 20;
+let isRapid = false;
+
+function selectMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function startQuiz() {
+  let pool = [...ALL_QUESTIONS];
+  if (mode === 'main') pool = pool.slice(0, 40);
+  if (mode === 'shuffle' || mode === 'rapid') {
+    // shuffle
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+  }
+  questions = pool;
+  isRapid = mode === 'rapid';
+  current = 0; score = 0; streak = 0;
+  results = questions.map(() => ({ answered: false, correct: false, skipped: false, chosen: -1 }));
+
+  document.getElementById('qTotalDisplay').textContent = questions.length;
+  document.getElementById('timerWrap').style.display = isRapid ? 'block' : 'none';
+
+  showScreen('quizScreen');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.add('hidden');
+    if (s.id === 'quizScreen') s.style.display = 'none';
+  });
+  const target = document.getElementById(id);
+  target.classList.remove('hidden');
+  if (id === 'quizScreen') target.style.display = 'flex';
+}
+
+function renderQuestion() {
+  if (current >= questions.length) { showResults(); return; }
+
+  const q = questions[current];
+  const card = document.getElementById('questionCard');
+
+  // Update meta
+  document.getElementById('qNumDisplay').textContent = current + 1;
+  document.getElementById('qNumBadge').textContent = `Q ${String(current+1).padStart(2,'0')}`;
+  document.getElementById('qCategory').textContent = q.cat;
+  document.getElementById('qBonus').style.display = q.bonus ? 'inline-block' : 'none';
+  document.getElementById('progressFill').style.width = `${(current / questions.length) * 100}%`;
+  document.getElementById('qText').textContent = q.q;
+
+  // Choices
+  const container = document.getElementById('choicesContainer');
+  container.innerHTML = '';
+  q.choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<div class="choice-letter">${LETTERS[i]}</div><div class="choice-text">${ch}</div>`;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+
+  // Reset feedback
+  const fb = document.getElementById('feedbackBar');
+  fb.className = 'feedback-bar';
+  fb.style.display = 'none';
+
+  // Reset buttons
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('skipBtn').disabled = false;
+
+  // Timer
+  if (isRapid) startTimer();
+
+  // Animate card
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'cardIn 0.35s ease both';
+}
+
+function selectAnswer(chosenIdx) {
+  if (results[current].answered || results[current].skipped) return;
+
+  clearTimer();
+  const q = questions[current];
+  const btns = document.querySelectorAll('.choice-btn');
+  const isCorrect = chosenIdx === q.ans;
+
+  results[current].answered = true;
+  results[current].correct = isCorrect;
+  results[current].chosen = chosenIdx;
+
+  // Disable all
+  btns.forEach(b => b.classList.add('answered'));
+
+  // Highlight
+  btns[chosenIdx].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[q.ans].classList.add('reveal-correct');
+
+  // Score & streak
+  if (isCorrect) {
+    score++;
+    streak++;
+    document.getElementById('scoreDisplay').textContent = score;
+    if (streak >= 3) showComboToast(streak);
+  } else {
+    streak = 0;
+  }
+
+  // Feedback
+  showFeedback(isCorrect, q);
+
+  document.getElementById('nextBtn').disabled = false;
+  document.getElementById('skipBtn').disabled = true;
+}
+
+function showFeedback(isCorrect, q) {
+  const fb = document.getElementById('feedbackBar');
+  const icon = document.getElementById('feedbackIcon');
+  const text = document.getElementById('feedbackText');
+
+  fb.className = 'feedback-bar show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  fb.style.display = 'flex';
+  icon.textContent = isCorrect ? '✓' : '✗';
+
+  if (isCorrect) {
+    text.innerHTML = `<strong>Correct!</strong> Well done.`;
+  } else {
+    text.innerHTML = `<strong>Not quite.</strong> The correct answer is: <span class="correct-ans">${LETTERS[q.ans]}. ${q.choices[q.ans]}</span>`;
+  }
+}
+
+function skipQuestion() {
+  if (results[current].answered) return;
+  clearTimer();
+  results[current].skipped = true;
+  streak = 0;
+
+  const q = questions[current];
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach(b => b.classList.add('answered'));
+  btns[q.ans].classList.add('reveal-correct');
+
+  const fb = document.getElementById('feedbackBar');
+  const icon = document.getElementById('feedbackIcon');
+  const text = document.getElementById('feedbackText');
+  fb.className = 'feedback-bar show wrong-fb';
+  fb.style.display = 'flex';
+  icon.textContent = '→';
+  text.innerHTML = `<strong>Skipped.</strong> The answer was: <span class="correct-ans">${LETTERS[q.ans]}. ${q.choices[q.ans]}</span>`;
+
+  document.getElementById('nextBtn').disabled = false;
+  document.getElementById('skipBtn').disabled = true;
+}
+
+function nextQuestion() {
+  const card = document.getElementById('questionCard');
+  card.classList.add('card-leaving');
+  setTimeout(() => {
+    card.classList.remove('card-leaving');
+    current++;
+    renderQuestion();
+  }, 240);
+}
+
+function startTimer() {
+  timerSecs = 20;
+  updateTimerDisplay();
+  clearTimer();
+  timerInterval = setInterval(() => {
+    timerSecs--;
+    updateTimerDisplay();
+    if (timerSecs <= 0) {
+      clearTimer();
+      skipQuestion();
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimerDisplay() {
+  const pct = timerSecs / 20;
+  const circ = 94.2;
+  const offset = circ * (1 - pct);
+  const circle = document.getElementById('timerCircle');
+  const text = document.getElementById('timerText');
+  if (!circle) return;
+  circle.style.strokeDashoffset = offset;
+  circle.style.stroke = timerSecs > 10 ? 'var(--cyan)' : timerSecs > 5 ? 'var(--amber)' : 'var(--red)';
+  text.textContent = timerSecs;
+  text.style.color = circle.style.stroke;
+}
+
+function showComboToast(streak) {
+  const toast = document.createElement('div');
+  toast.className = 'combo-toast';
+  const msgs = { 3:'🔥 3 STREAK!', 4:'⚡ 4 IN A ROW!', 5:'💥 5 STREAK!', 6:'🚀 6 STREAK!', 7:'🌟 7 STREAK!', 8:'👑 8 STREAK!', 9:'🔥 9 STREAK!', 10:'🎯 PERFECT 10!' };
+  toast.textContent = msgs[Math.min(streak, 10)] || `🔥 ${streak} STREAK!`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
+
+function openQMap() {
+  const grid = document.getElementById('qmapGrid');
+  grid.innerHTML = '';
+  questions.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'qmap-dot';
+    dot.textContent = i + 1;
+    const r = results[i];
+    if (i === current) dot.classList.add('current');
+    if (r.skipped) dot.classList.add('skipped');
+    else if (r.answered && r.correct) dot.classList.add('answered-c');
+    else if (r.answered && !r.correct) dot.classList.add('answered-w');
+    else dot.classList.add('unanswered');
+    dot.onclick = () => { closeQMap(); jumpTo(i); };
+    grid.appendChild(dot);
+  });
+  document.getElementById('qmapOverlay').classList.add('open');
+}
+
+function closeQMap(e) {
+  if (!e || e.target === document.getElementById('qmapOverlay') || !e.target.closest) {
+    document.getElementById('qmapOverlay').classList.remove('open');
+  }
+}
+
+function jumpTo(idx) {
+  current = idx;
+  renderQuestion();
+}
+
+function showResults() {
+  clearTimer();
+  const total = questions.length;
+  const mainQs = questions.filter(q => !q.bonus);
+  const bonusQs = questions.filter(q => q.bonus);
+  const mainResults = results.filter((_, i) => !questions[i].bonus);
+  const bonusResults = results.filter((_, i) => questions[i].bonus);
+
+  const correct = results.filter(r => r.correct).length;
+  const wrong = results.filter(r => r.answered && !r.correct).length;
+  const skipped = results.filter(r => r.skipped).length;
+  const bonusCorrect = bonusResults.filter(r => r.correct).length;
+  const pct = Math.round((correct / total) * 100);
+
+  document.getElementById('resCorrect').textContent = correct;
+  document.getElementById('resWrong').textContent = wrong;
+  document.getElementById('resSkipped').textContent = skipped;
+  document.getElementById('resBonus').textContent = bonusCorrect;
+  document.getElementById('scorePct').textContent = pct + '%';
+
+  // Animate ring
+  setTimeout(() => {
+    document.getElementById('scoreCircle').style.setProperty('--pct', pct);
+  }, 200);
+
+  // Grade
+  const gb = document.getElementById('gradeBanner');
+  let grade, gbStyle;
+  if (pct >= 90) { grade = '🏆 EXCELLENT!'; gbStyle = 'background:rgba(0,229,138,0.1);border:1px solid rgba(0,229,138,0.3);color:var(--green)'; }
+  else if (pct >= 75) { grade = '✅ PROFICIENT'; gbStyle = 'background:rgba(76,201,240,0.1);border:1px solid rgba(76,201,240,0.3);color:var(--cyan)'; }
+  else if (pct >= 60) { grade = '📈 DEVELOPING'; gbStyle = 'background:rgba(255,184,48,0.1);border:1px solid rgba(255,184,48,0.3);color:var(--amber)'; }
+  else { grade = '📚 NEEDS REVIEW'; gbStyle = 'background:rgba(255,59,92,0.1);border:1px solid rgba(255,59,92,0.3);color:var(--red)'; }
+  gb.textContent = grade;
+  gb.style.cssText += ';' + gbStyle;
+
+  // Title
+  const titleEl = document.getElementById('resultsTitle');
+  if (pct === 100) { titleEl.textContent = 'PERFECT!'; titleEl.style.color = 'var(--green)'; launchConfetti(); }
+  else if (pct >= 80) { titleEl.textContent = 'GREAT JOB!'; titleEl.style.color = 'var(--cyan)'; }
+  else { titleEl.textContent = 'RESULTS'; titleEl.style.color = ''; }
+
+  showScreen('resultsScreen');
+}
+
+function toggleReview() {
+  const section = document.getElementById('reviewSection');
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    buildReview();
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+function buildReview() {
+  const section = document.getElementById('reviewSection');
+  section.innerHTML = '';
+
+  // Wrong/skipped first
+  const wrong = questions.map((q, i) => ({ q, r: results[i], i })).filter(x => !x.r.correct);
+  const correct = questions.map((q, i) => ({ q, r: results[i], i })).filter(x => x.r.correct);
+
+  if (wrong.length > 0) {
+    const wTitle = document.createElement('div');
+    wTitle.className = 'review-title';
+    wTitle.style.color = 'var(--red)';
+    wTitle.textContent = `NEEDS REVIEW (${wrong.length})`;
+    section.appendChild(wTitle);
+    wrong.forEach(({ q, r, i }) => section.appendChild(buildReviewItem(q, r, i)));
+  }
+
+  if (correct.length > 0) {
+    const cTitle = document.createElement('div');
+    cTitle.className = 'review-title';
+    cTitle.style.color = 'var(--green)';
+    cTitle.style.marginTop = '24px';
+    cTitle.textContent = `CORRECT (${correct.length})`;
+    section.appendChild(cTitle);
+    correct.forEach(({ q, r, i }) => section.appendChild(buildReviewItem(q, r, i)));
+  }
+}
+
+function buildReviewItem(q, r, idx) {
+  const item = document.createElement('div');
+  item.className = 'review-item' + (!r.correct ? ' wrong-item' : '');
+
+  const qRow = document.createElement('div');
+  qRow.className = 'review-q';
+  qRow.innerHTML = `<span class="review-qnum">Q${idx+1}${q.bonus?' ★':''}</span><span>${q.q}</span>`;
+  item.appendChild(qRow);
+
+  const answers = document.createElement('div');
+  answers.className = 'review-answers';
+
+  if (r.skipped) {
+    const a = document.createElement('div');
+    a.className = 'review-ans correct-ans';
+    a.innerHTML = `<span class="ans-tag" style="background:rgba(0,229,138,0.15);color:var(--green)">ANSWER</span> ${LETTERS[q.ans]}. ${q.choices[q.ans]}`;
+    answers.appendChild(a);
+  } else if (r.correct) {
+    const a = document.createElement('div');
+    a.className = 'review-ans your-correct';
+    a.innerHTML = `<span class="ans-tag" style="background:rgba(0,229,138,0.15);color:var(--green)">✓ YOUR ANSWER</span> ${LETTERS[r.chosen]}. ${q.choices[r.chosen]}`;
+    answers.appendChild(a);
+  } else {
+    const a1 = document.createElement('div');
+    a1.className = 'review-ans your-wrong';
+    a1.innerHTML = `<span class="ans-tag" style="background:rgba(255,59,92,0.15);color:var(--red)">✗ YOUR ANSWER</span> ${LETTERS[r.chosen]}. ${q.choices[r.chosen]}`;
+    const a2 = document.createElement('div');
+    a2.className = 'review-ans correct-ans';
+    a2.innerHTML = `<span class="ans-tag" style="background:rgba(0,229,138,0.15);color:var(--green)">✓ CORRECT</span> ${LETTERS[q.ans]}. ${q.choices[q.ans]}`;
+    answers.appendChild(a1);
+    answers.appendChild(a2);
+  }
+
+  item.appendChild(answers);
+  return item;
+}
+
+function retryQuiz() {
+  document.getElementById('reviewSection').style.display = 'none';
+  showScreen('startScreen');
+}
+
+function launchConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  const colors = ['#ff3b5c','#ffb830','#00d4ff','#00e58a','#b06aff'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    piece.style.transform = `rotate(${Math.random()*360}deg)`;
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    wrap.appendChild(piece);
+  }
+  setTimeout(() => wrap.innerHTML = '', 5000);
+}
+</script>
+</body>
+</html>
